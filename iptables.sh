@@ -16,7 +16,7 @@ firewall_help() {
   echo " :: stop        :: apaga e retorna as políticas padrões ao normal"
   echo " :: start_quiet :: inicia as regras em modo quiet"
   echo " :: stop_quiet  :: apaga e retorna as políticas padrões ao normal em modo quiet"
-  echo "Veja https://github.com/kumroute/ para mais informações"
+  echo "Veja https://github.com/kumroute/iptables-kull/ para mais informações"
 }
 
 firewall_up () {
