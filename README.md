@@ -36,7 +36,7 @@ Porque utilizar o Kull ?
 
 => Ele libera as portas que você especificou no array $porta_in_tcp[] e $porta_in_udp[], sendo portas TCP e UDP respectivamente
 
-=> O mesmo é feito com os arrays $porta_out_tcp[] e $porta_out_udp[]
+=> O mesmo é feito com os arrays $porta_out_tcp[] e $porta_out_udp[], porém para OUTPUT
 
 => Ele bloqueia pacotes fragmentados
 
