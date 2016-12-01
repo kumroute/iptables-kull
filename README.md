@@ -8,11 +8,17 @@ Configuração :
 
 caminho=$(pwd)
 
+echo "#!/usr/bin/env bash" > cnmap.sh
+
+echo "sudo $caminho/iptables.sh stop_quiet" >> cnmap.sh
+
+echo "sudo nmap $@ ; echo " >> cnmap.sh
+
+echo "sudo $caminho/iptables.sh start_quiet" >> cnmap.sh
+
 echo "alias nmap='sudo $caminho/cnmap.sh'" >> .bashrc
 
 echo "alias firewall='sudo $caminho/iptables.sh'" >> .bashrc
-
-sed -i 's/kumroute/seu_nome_de_usuário/g'
 
 sed -i 's/wlp8s0/sua_interface_wlan/g'
 
