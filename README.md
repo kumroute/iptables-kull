@@ -22,7 +22,7 @@ echo "alias firewall='sudo $caminho/iptables.sh'" >> .bashrc
 
 sed -i 's/wlp8s0/sua_interface_wlan/g'
 
-// feche e abra outro terminal, e estará pronto para uso
+// reinicie o terminal, e estará pronto para uso
 
 Página de ajuda :
 
