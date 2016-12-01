@@ -1,16 +1,18 @@
 Criado por Kum Traceroute em 30/11/2016
 
+# IPTables Kull
+
 Configuração :
-# entre na pasta iptables-kull
+// entre na pasta iptables-kull
 caminho=$(pwd)
 echo "alias nmap='sudo $caminho/cnmap.sh'" >> .bashrc
 echo "alias firewall='sudo $caminho/iptables.sh'" >> .bashrc
 sed -i 's/kumroute/seu_nome_de_usuário/g'
 sed -i 's/wlp8s0/sua_interface_wlan/g'
-# feche e abra outro terminal, e estará pronto para uso
+// feche e abra outro terminal, e estará pronto para uso
 
 Página de ajuda :
-# execute :
+// execute :
 firewall help
 
 Porque utilizar o Kull ?
