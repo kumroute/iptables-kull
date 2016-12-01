@@ -19,10 +19,13 @@ sed -i 's/wlp8s0/sua_interface_wlan/g'
 // feche e abra outro terminal, e estará pronto para uso
 
 Página de ajuda :
+
 // execute :
+
 firewall help
 
 Porque utilizar o Kull ?
+
 => Ele faz PortKnock nas portas em que você especificou no array $porta_serv[]
 
 => Ele libera as portas que você especificou no array $porta_in_tcp[] e $porta_in_udp[], sendo portas TCP e UDP respectivamente
