@@ -20,7 +20,7 @@ echo "alias nmap='sudo $caminho/cnmap.sh'" >> .bashrc
 
 echo "alias firewall='sudo $caminho/iptables.sh'" >> .bashrc
 
-sed -i 's/wlp8s0/sua_interface_wlan/g'
+sed -i 's/wlp8s0/sua_interface_wlan/g' iptables.sh
 
 // reinicie o terminal, e estará pronto para uso
 
