@@ -1,50 +1,8 @@
 Criado por Kum Traceroute em 30/11/2016
 
-# IPTables Kull
+Para mais informações sobre instalação e configuração :
 
-Configuração :
+:: https://brasilblackhat.com.br/forum/viewtopic.php?f=252&t=628&p=1272#p1272
 
-// entre na pasta iptables-kull
-
-caminho=$(pwd)
-
-echo "#!/usr/bin/env bash" > cnmap.sh
-
-echo "sudo $caminho/iptables.sh stop_quiet" >> cnmap.sh
-
-echo "sudo nmap $@ ; echo " >> cnmap.sh
-
-echo "sudo $caminho/iptables.sh start_quiet" >> cnmap.sh
-
-echo "alias nmap='sudo $caminho/cnmap.sh'" >> .bashrc
-
-echo "alias firewall='sudo $caminho/iptables.sh'" >> .bashrc
-
-sed -i 's/wlp8s0/sua_interface_wlan/g' iptables.sh
-
-// reinicie o terminal, e estará pronto para uso
-
-Página de ajuda :
-
-// execute :
-
-firewall help
-
-Porque utilizar o Kull ?
-
-=> Ele faz PortKnock nas portas em que você especificou no array $porta_serv[]
-
-=> Ele libera as portas que você especificou no array $porta_in_tcp[] e $porta_in_udp[], sendo portas TCP e UDP respectivamente
-
-=> O mesmo é feito com os arrays $porta_out_tcp[] e $porta_out_udp[], porém para OUTPUT
-
-=> Ele bloqueia pacotes fragmentados
-
-=> Ele limita os pacotes TCP contendo o bit SYN para somente 2 por segundo, fazendo uma proteção contra SYN flood
-
-=> Ele bloqueia IP spoofing
-
-=> Ele bloqueia o ping de chegar em sua máquina, porém você pode utilizá-lo nos outros
-
-Qualquer duvida, erros ou bugs :
-Contato : +55 (14) 98820-8320
+Qualquer duvida, erros ou bugs : 
+contato : +55 (14) 98820-8320
