@@ -11,7 +11,7 @@ firewall_help() {
   firewall_version
   echo "[+] Uso: firewall <opção>"
   echo " :: help        :: mostra essa página de ajuda"
-  echo " :: status      :: mostra se o iptables está ativo ou desativo"
+  echo " :: status      :: mostra se o iptables está ativo ou inativo"
   echo " :: start       :: inicia as regras"
   echo " :: stop        :: apaga e retorna as políticas padrões ao normal"
   echo " :: start_quiet :: inicia as regras em modo quiet"
@@ -30,7 +30,7 @@ firewall_up () {
   pk3=302
 
   # PORTAS PROTEGIDAS PELO PORTKNOCK
-  porta_serv[0]=2222
+  porta_serv[0]=22
 
   # PORTAS PARA LIVRE USO INPUT TCP
   # porta_in_tcp[0]=
@@ -187,9 +187,9 @@ if [ "$1" == "status" ] ; then
   firewall_version
   var=$(iptables -S | head -1)
   if [ "$var" == "-P INPUT ACCEPT" ] ; then
-    echo " :: is inactive"
+    echo " :: está ativo"
   else
-    echo " :: is active"
+    echo " :: está inativo"
   fi
 fi
 
