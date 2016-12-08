@@ -4,18 +4,16 @@
 ###################################
 
 firewall_version() {
-  echo "[+] IPTables Kull 1.0.1"
+  echo "[+] IPTables Kull 1.0.2"
 }
 
 firewall_help() {
   firewall_version
   echo "[+] Uso: firewall <opção>"
-  echo " :: help        :: mostra essa página de ajuda"
-  echo " :: status      :: mostra se o iptables está ativo ou inativo"
-  echo " :: start       :: inicia as regras"
-  echo " :: stop        :: apaga e retorna as políticas padrões ao normal"
-  echo " :: start_quiet :: inicia as regras em modo quiet"
-  echo " :: stop_quiet  :: apaga e retorna as políticas padrões ao normal em modo quiet"
+  echo " :: help         :: mostra essa página de ajuda"
+  echo " :: start        :: inicia as regras"
+  echo " :: stop         :: apaga e retorna as políticas padrões ao normal"
+  echo " :: status       :: mostra se o iptables está ativo ou inativo"
   echo "Veja https://github.com/kumroute/iptables-kull/ para mais informações"
 }
 
@@ -30,7 +28,7 @@ firewall_up () {
   pk3=302
 
   # PORTAS PROTEGIDAS PELO PORTKNOCK
-  porta_serv[0]=22
+  porta_serv[0]=2222
 
   # PORTAS PARA LIVRE USO INPUT TCP
   # porta_in_tcp[0]=
@@ -51,7 +49,11 @@ firewall_up () {
   # POLITICAS PADROES
   iptables -P INPUT DROP
   iptables -P FORWARD DROP
-  iptables -P OUTPUT DROP
+  if [ "$1" != "only-input-rules" ] ; then
+    iptables -P OUTPUT DROP
+  else
+    iptables -P OUTPUT ACCEPT
+  fi
 
   ####### REGRAS DE INPUT #################
 
@@ -62,7 +64,7 @@ firewall_up () {
   iptables -A INPUT -i lo -j ACCEPT
 
   # BLOQUEAR PACOTES FRAGMENTADOS
-  iptables -A INPUT -f -j DROP
+  # iptables -A INPUT -f -j DROP
 
   # PROTECAO PING DA MORTE
   # iptables -t filter -A INPUT -p icmp --icmp-type 0 -m limit --limit 1/s -j RETURN
@@ -117,6 +119,7 @@ firewall_up () {
 
   #########################################
 
+  if [ "$1" != "only-input-rules" ] ; then 
   ####### REGRAS DE OUTPUT ################
 
   # CONEXOES ESTABELECIDAS E RELACIONADAS
@@ -137,6 +140,7 @@ firewall_up () {
   i=$[i+1] ; done
 
   #########################################
+  fi
 
 }
 
@@ -150,33 +154,33 @@ firewall_down() {
 }
 
 if [ "$1" == "start" ] ; then
-  firewall_version
-  echo "[+] Trocando políticas padrões"
-  echo "[+] Carregando regras de input"
-  echo " :: Carregando proteção contra synflood"
-  echo " :: Carregando proteção contra ip spoofing"
-  echo " :: Carregando portknock para os serviços"
-  echo " :: Carregando proteção contra portscan"
-  echo " :: Liberando portas para livre uso"
-  echo "[+] Carregando regras de output"
-  echo " :: Liberando o retorno de serviços iniciados"
-  echo " :: Liberando acesso à servidores web"
-  firewall_up
+  if [ "$2" == "input" ] ; then
+    firewall_up only-input-rules
+  else
+    firewall_up
+  fi
+  if [ "$2" != "quiet" ] && [ "$2" != "input" ] ; then
+    firewall_version
+    echo "[+] Trocando políticas padrões"
+    echo "[+] Carregando regras de input"
+    echo " :: Carregando proteção contra synflood"
+    echo " :: Carregando proteção contra ip spoofing"
+    echo " :: Carregando portknock para os serviços"
+    echo " :: Carregando proteção contra portscan"
+    echo " :: Liberando portas para livre uso"
+    echo "[+] Carregando regras de output"
+    echo " :: Liberando o retorno de serviços iniciados"
+    echo " :: Liberando acesso à servidores web"
+  fi
 fi
 
 if [ "$1" == "stop" ] ; then
-  firewall_version
-  echo "[+] Apagando as regras"
-  echo "[+] Trocando políticas padrões"
   firewall_down
-fi
-
-if [ "$1" == "start_quiet" ] ; then
-  firewall_up
-fi
-
-if [ "$1" == "stop_quiet" ] ; then
-  firewall_down
+  if [ "$2" != "quiet" ] ; then
+    firewall_version
+    echo "[+] Apagando as regras"
+    echo "[+] Trocando políticas padrões"
+  fi
 fi
 
 if [ "$1" == "help" ] || [ ! $1 ] ; then
@@ -187,9 +191,8 @@ if [ "$1" == "status" ] ; then
   firewall_version
   var=$(iptables -S | head -1)
   if [ "$var" == "-P INPUT ACCEPT" ] ; then
-    echo " :: está ativo"
-  else
     echo " :: está inativo"
+  else
+    echo " :: está ativo"
   fi
 fi
-
