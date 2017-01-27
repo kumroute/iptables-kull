@@ -4,7 +4,7 @@
 ###################################
 
 firewall_version() {
-  echo "[+] IPTables Kull 1.0.2"
+  echo "[+] IPTables Kull 1.0.3"
 }
 
 firewall_help() {
@@ -19,19 +19,32 @@ firewall_help() {
 
 firewall_up () {
   
+  # NETWORK SECURITY IPV4
+  echo "1" > /proc/sys/net/ipv4/ip_dynaddr
+  echo "0" > /proc/sys/net/ipv4/ip_forward
+  echo "0" > /proc/sys/net/ipv4/tcp_syncookies
+  echo "1" > /proc/sys/net/ipv4/icmp_echo_ignore_all
+  echo "1" > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts
+  echo "1" > /proc/sys/net/ipv4/icmp_ignore_bogus_error_responses
+  echo "0" > /proc/sys/net/ipv4/conf/all/accept_source_route
+  echo "0" > /proc/sys/net/ipv4/conf/all/accept_redirects
+  echo "1" > /proc/sys/net/ipv4/conf/all/log_martians
+
   # INTERFACE WLAN
   ext="wlp8s0"
 
   # PORTAS DO PORT KNOCK
-  pk1=100
-  pk2=201
-  pk3=302
+  pk1=102
+  pk2=204
+  pk3=306
 
   # PORTAS PROTEGIDAS PELO PORTKNOCK
-  porta_serv[0]=2222
+  porta_serv[0]=22
+  porta_serv[1]=5432
 
   # PORTAS PARA LIVRE USO INPUT TCP
-  # porta_in_tcp[0]=
+  porta_in_tcp[0]=2020
+  porta_in_tcp[1]=4444
   # PORTAS PARA LIVRE USO INPUT UDP
   # porta_in_udp[0]=
 
