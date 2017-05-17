@@ -1,0 +1,39 @@
+
+interface_wlan: wlp8s0
+
+[Options]
+
+ping_reply_input: allow
+ping_request_output: allow
+
+
+[Kernel]
+
+ip_dynaddr: yes
+ip_forward: no
+tcp_syncookies: yes
+icmp_echo_ignore_all: yes
+icmp_echo_ignore_broadcasts: yes
+icmp_ignore_bogus_error_responses: yes
+conf/all/accept_source_route: no
+conf/all/accept_redirects: no
+conf/all/log_martians: yes
+
+[Port]
+
+ports_portknock: 1102, 1004, 176
+portknock: 22, 5432
+allow_input_tcp: 2020, 4444
+allow_input_udp: 5555
+allow_output_tcp: 80, 443
+allow_output_udp: 53
+
+[Protect]
+
+syn-flood: yes
+ip-spoofing: yes
+port-scan: yes
+death-ping: no
+block-fragments: no
+
+
