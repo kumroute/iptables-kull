@@ -4,15 +4,20 @@
 # Contato: +55 (14) 98820-8320    #
 ###################################
 
+cor_amarela="\e[33;1m"
+cor_vermelha="\e[31m"
+cor_verde="\e[32m"
+cor_normal="\e[0m"
+
 function firewall_version() {
   if [ ! "$quiet" ] ; then
-    echo "[+] IPTables Kull 1.0.5"
+    echo "[*] IPTables Kull 1.0.5"
   fi
 }
 
 function firewall_help() {
   firewall_version
-  echo "[+] Uso: firewall <opção>"
+  echo "[*] Uso: firewall <opção>"
   echo " :: help         :: mostra essa página de ajuda"
   echo " :: start        :: inicia as regras"
   echo " :: stop         :: apaga e retorna as políticas padrões ao normal"
@@ -39,11 +44,11 @@ function verificar_erro() {
   if [ $1 -eq 0 ] ; then
     # Se não tiver o quiet
     if [ ! "$quiet" ] && [ ! "$2" ] ; then
-      printf " [\e[32mok\e[0m]\n"
+      printf " [${cor_verde}ok${cor_normal}]\n"
     fi
   else
     if [ ! "$quiet" ] && [ ! "$2" ] ; then
-      printf " [\e[31merror\e[0m]\n" ; exit
+      printf " [${cor_vermelha}error${cor_normal}]\n" ; exit
     # Se tiver, muda o output
     else
       echo " :: Algum erro foi detectado, code: $1" ; exit
@@ -180,13 +185,13 @@ function firewall_up() {
 function firewall_down() {
 
   if [ ! "$quiet" ] ; then
-    printf "[+] Apagando as regras" ; fi
+    printf " - Apagando as regras" ; fi
   iptables -F ; verificar_erro "$?" "somente erros"
   iptables -X ; verificar_erro "$?" "somente erros"
   iptables -Z ; verificar_erro "$?"
 
   if [ ! "$quiet" ] ; then
-    printf "[+] Trocando políticas padrões" ; fi
+    printf " - Trocando políticas padrões" ; fi
   iptables -P INPUT ACCEPT ; verificar_erro "$?" "somente erros"
   iptables -P FORWARD ACCEPT ; verificar_erro "$?" "somente erros"
   iptables -P OUTPUT ACCEPT ; verificar_erro "$?"
@@ -259,7 +264,7 @@ function Protect() {
   # Function verificar_erro com printf para o usuário
   function print_status() {
     if [ ! "$quiet" ] ; then
-      printf "[+] Carregando proteção contra $2"
+      printf " * Carregando proteção contra $2"
     fi
     verificar_erro "$1"
   }
@@ -349,7 +354,7 @@ function Port() {
     fi
 
     if [ ! "$quiet" ] ; then
-      printf "[+] Carregando fases do portknock" ; fi
+      printf " * Carregando fases do portknock" ; fi
 
     # Criar as fases do portknock de acordo com as portas_portknock
     # Quantidade de fases (qnt de portas)
@@ -420,7 +425,7 @@ function Port() {
     qnt_proteger=`echo $portas_para_proteger | wc -w`
 
     if [ ! "$quiet" ] ; then
-      printf "[+] Carregando regras para o portknock" ; fi
+      printf " * Carregando regras para o portknock" ; fi
 
     for ((i=1 ; i<=$qnt_proteger ; ++i)) ; do
 
@@ -451,11 +456,11 @@ function Port() {
     # Ação (allow, deny ou drop)
     valor=`echo "$opcao" | head -1`
     if [ "${valor,,}" == "allow" ] ; then
-      acao="-j ACCEPT" ; frase_printf="Liberando"
+      acao="-j ACCEPT" ; frase_printf="Liberando" ; simbolo=" +"
     elif [ "${valor,,}" == "deny" ] ; then
-      acao="-j REJECT" ; frase_printf="Bloqueando"
+      acao="-j REJECT" ; frase_printf="Bloqueando" ; simbolo=" -"
     elif [ "${valor,,}" == "drop" ] ; then
-      acao="-j DROP" ; frase_printf="Dropando"
+      acao="-j DROP" ; frase_printf="Dropando" ; simbolo=" -"
     else
       verificar_erro "4040" "1"
     fi
@@ -492,7 +497,7 @@ function Port() {
       shift ; shift ; shift
       portas_printf=`echo "$*" | sed -e 's/ //g' | sed -e 's/,/ /g' | \
         sed -e 's/ /, /g'`
-      printf "[+] $frase_printf $frase_printf2 para as portas: $portas_printf"
+      printf "$simbolo $frase_printf $frase_printf2 para as portas: $portas_printf"
     fi
 
     for ((ii=1; ii<=$qnt_portas ; ++ii)) ; do
