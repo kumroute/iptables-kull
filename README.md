@@ -14,7 +14,7 @@ bash iptables.sh
     * Sintaxe: \<protocolo>\_<input/output>: <allow/deny/drop>  
     * Sintaxe especial: ping\_<reply/request>\_<input_output>: <allow/deny/drop>  
   * [Kernel] : as opções aqui são/devem ser arquivos do diretório /proc/sys/net/ipv4  
-    1. Caso a ação for yes, o arquivo terá seu valor=1 e se for no = 0  
+    * Caso a ação for yes, o arquivo terá seu valor=1 e se for no = 0  
   * [Port] : configurações de porta, pode estar protegido por portknock ou não  
     * Caso esteja: ports_portknock: <portas> | Ex. ports_portknock: 111,222,333  
       * E após isso especificar que porta quer proteger, Ex. portknock: 21,22  
