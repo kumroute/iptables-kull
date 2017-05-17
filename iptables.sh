@@ -60,11 +60,16 @@ function verificar_erro() {
 function firewall_status() {
   firewall_version
   # Valor da primeira regra (politica padrão do INPUT)
-  var=`iptables -S | head -1 | awk {'print $3'}`
-  if [ "$var" == "ACCEPT" ] ; then
+  var_input=`iptables -S | head -1 | awk {'print $3'}`
+  if [ "$var_input" == "ACCEPT" ] ; then
     echo " :: está inativo"
   else
-    echo " :: está ativo"
+    var_output=`iptables -S | head -3 | tail -1 | awk {'print $3'}`
+    if [ "$var_output" == "DROP" ] ; then
+      echo " :: está ativo"
+    else
+      echo " :: está ativo (somente as regras de input)"
+    fi
   fi
 }
 
