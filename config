@@ -22,7 +22,7 @@ conf/all/log_martians: yes
 [Port]
 
 ports_portknock: 1102, 1004, 176
-portknock: 22, 5432
+portknock: 21, 22
 allow_input_tcp: 2020, 4444
 allow_input_udp: 5555
 allow_output_tcp: 80, 443

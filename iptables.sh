@@ -86,13 +86,11 @@ function firewall_config() {
 # Regras que devem ter em todas as configurações
 function carregar_regras() {
 
-  if [ ! "$quiet" ] ; then
-    printf "[+] Trocando políticas padrões" ; fi
   iptables -P INPUT DROP ; verificar_erro "$?" "somente erros"
   iptables -P FORWARD DROP ; verificar_erro "$?" "somente erros"
   if [ "${1,,}" != "input" ] ; then
 
-    iptables -P OUTPUT DROP ; verificar_erro "$?"
+    iptables -P OUTPUT DROP ; verificar_erro "$?" "somente erros"
 
     # Liberar conexões estabelecidas e relacionadas
     iptables -A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
@@ -103,7 +101,7 @@ function carregar_regras() {
     verificar_erro "$?" "somente erros"
 
   else
-    iptables -P OUTPUT ACCEPT ; verificar_erro "$?"
+    iptables -P OUTPUT ACCEPT ; verificar_erro "$?" "somente erros"
   fi
 
   # Liberar conexões estabelecidas e relacionadas
@@ -453,11 +451,11 @@ function Port() {
     # Ação (allow, deny ou drop)
     valor=`echo "$opcao" | head -1`
     if [ "${valor,,}" == "allow" ] ; then
-      acao="-j ACCEPT"
+      acao="-j ACCEPT" ; frase_printf="Liberando"
     elif [ "${valor,,}" == "deny" ] ; then
-      acao="-j REJECT"
+      acao="-j REJECT" ; frase_printf="Bloqueando"
     elif [ "${valor,,}" == "drop" ] ; then
-      acao="-j DROP"
+      acao="-j DROP" ; frase_printf="Dropando"
     else
       verificar_erro "4040" "1"
     fi
@@ -465,9 +463,9 @@ function Port() {
     # Chain (input, output ou forward)
     valor=`echo "$opcao" | head -2 | tail -1`
     if [ "${valor,,}" == "input" ] ; then
-      chain="-A INPUT"
+      chain="-A INPUT" ; frase_printf2="conexões"
     elif [ "${valor,,}" == "output" ] ; then
-      chain="-A OUTPUT"
+      chain="-A OUTPUT" ; frase_printf2="a saída"
     elif [ "${valor,,}" == "forward" ] ; then
       chain="-A FORWARD"
     else
@@ -491,7 +489,11 @@ function Port() {
     qnt_portas=`echo "$portas" | wc -l`
 
     if [ ! "$quiet" ] ; then
-      printf "[+] Liberando portas para livre uso" ; fi
+      shift ; shift ; shift
+      portas_printf=`echo "$*" | sed -e 's/ //g' | sed -e 's/,/ /g' | \
+        sed -e 's/ /, /g'`
+      printf "[+] $frase_printf $frase_printf2 para as portas: $portas_printf"
+    fi
 
     for ((ii=1; ii<=$qnt_portas ; ++ii)) ; do
 
