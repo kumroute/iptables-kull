@@ -276,6 +276,8 @@ function Protect() {
 
   if [ "${1,,}" == "syn-flood:" ] ; then
     if [ "${2,,}" == "yes" ] ; then
+      iptables -A INPUT -p tcp --syn -m limit --limit 2/s -j LOG --log-prefix "FIREWALL: syn-flood attack"
+      verificar_erro "$?" "somente em erros"
       iptables -A INPUT -p tcp --syn -m limit --limit 2/s -j ACCEPT
       print_status "$?" "syn-flood"
     fi
@@ -283,8 +285,12 @@ function Protect() {
 
   if [ "${1,,}" == "ip-spoofing:" ] ; then
     if [ "${2,,}" == "yes" ] ; then
+      iptables -A INPUT -s 172.16.0.0/16 -i $interface -j LOG --log-prefix "FIREWALL: ip-spoofing detectado"
+      verificar_erro "$?" "somente em erros"
       iptables -A INPUT -s 172.16.0.0/16 -i $interface -j DROP
       verificar_erro "$?" "somente erros"
+      iptables -A INPUT -s 192.168.0.0/24 -i $interface -j LOG --log-prefix "FIREWALL: ip-spoofing detectado"
+      verificar_erro "$?" "somente em erros"
       iptables -A INPUT -s 192.168.0.0/24 -i $interface -j DROP
       print_status "$?" "ip-spoofing"
     fi
@@ -294,6 +300,8 @@ function Protect() {
     if [ "${2,,}" == "yes" ] ; then
       iptables -N SCANNER
       verificar_erro "$?" "somente erros"
+      iptables -A SCANNER -j LOG --log-prefix "FIREWALL: port-scan detectado"
+      verificar_erro "$?" "somente em erros"
       iptables -A SCANNER -j DROP
       verificar_erro "$?" "somente erros"
       iptables -A INPUT -p tcp --tcp-flags ALL FIN,URG,PSH -i $interface -j SCANNER
@@ -315,6 +323,8 @@ function Protect() {
 
   if [ "${1,,}" == "death-ping:" ] ; then
     if [ "${2,,}" == "yes" ] ; then
+      #iptables -A INPUT -p icmp --icmp-type 0 -m limit --limit 1/s -j LOG --log-prefix "FIREWALL: death-ping detectado"
+      #verificar_erro "$?" "somente em erros"
       iptables -A INPUT -p icmp --icmp-type 0 -m limit --limit 1/s -j RETURN
       print_status "$?" "death-ping"
     fi
