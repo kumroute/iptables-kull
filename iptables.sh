@@ -525,6 +525,7 @@ fi
 
 if [ "${1,,}" == "start" ] ; then
   if [ "${2,,}" == "input" ] ; then
+    quiet="verdadeiro"
     # Carregar somente as regras de INPUT
     firewall_up input
   else
