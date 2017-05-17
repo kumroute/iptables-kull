@@ -18,7 +18,7 @@ bash iptables.sh
   * [Port] : configurações de porta, pode estar protegido por portknock ou não  
     * Caso esteja: ports_portknock: <portas> | Ex. ports_portknock: 111,222,333  
       * E após isso especificar que porta quer proteger, Ex. portknock: 21,22  
-    * Caso não esteja, a sintaxe é essa: \<allow/deny/drop>\_<input/output>\_<protocolo>: \<portas>  
+    * Caso não esteja, a sintaxe é essa: \<allow/deny/drop>\_<input/output>\_\<protocolo>: \<portas>  
   * [Protect] : é um caso especial, são algumas proteções que o Kull permite que você use, eis uma lista :  
     * syn-flood: <yes/no>  
     * ip-spoofing: <yes/no>  
