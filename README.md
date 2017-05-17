@@ -11,8 +11,8 @@ bash iptables.sh
 
 => O arquivo config podem ter quatro divisões :  
   * [Options] : essa é uma seção especial para os protocolos (em especial o ICMP)  
-    * Sintaxe: <protocolo>_<input/output>: <allow/deny/drop>  
-    * Sintaxe especial: ping_<reply/request>_<input_output>: <allow/deny/drop>  
+    * Sintaxe: \<protocolo>\_<input/output>: <allow/deny/drop>  
+    * Sintaxe especial: ping\_<reply/request>\_<input_output>: <allow/deny/drop>  
   * [Kernel] : as opções aqui são/devem ser arquivos do diretório /proc/sys/net/ipv4  
     1. Caso a ação for yes, o arquivo terá seu valor=1 e se for no = 0  
   * [Port] : configurações de porta, pode estar protegido por portknock ou não  
@@ -30,11 +30,15 @@ bash iptables.sh
 
 #### Opções extras para o IPTables Kull :  
 
-- bash iptables.sh start quiet  
-- bash iptables.sh stop quiet  
+```  
+bash iptables.sh start quiet  
+bash iptables.sh stop quiet  
+```  
 * Esconde os printf em sua tela  
 
-- bash iptables.sh start input
+```  
+bash iptables.sh start input
+```  
 * Carrega somente as regras de input, útil para utilizar o nmap, por ex.  
 
 IPTables Kull, exemplo de configuração em config  
