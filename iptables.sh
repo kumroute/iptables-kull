@@ -26,17 +26,6 @@ function firewall_help() {
   echo "Veja https://github.com/kumroute/iptables-kull/ para mais informações"
 }
 
-# Retorna o caminho até o arquivo de configuração
-function caminho_config() {
-
-  # Cria se não existir
-  : ${CONFIG_KULL:="/etc/kull/config"}
-
-  # Retorna o caminho até o arquivo de config
-  echo "$CONFIG_KULL"
-
-}
-
 # Verifica erros, de acordo com o $1, recebe $? como argumento
 # Se $2 existir, então output somente em erros
 function verificar_erro() {
@@ -75,20 +64,16 @@ function firewall_status() {
 
 function firewall_config() {
 
-  # Usa a função caminho_config
-  caminho_config=`caminho_config`
-
   # Utiliza o editor configurado na config para editar
-  editor=`cat $caminho_config | grep "editor_config" | \
+  editor=`cat $CONFIG_KULL | grep "editor_config" | \
     awk {'print $2'}`
 
-  echo "$caminho_config $editor"
   # Se não existir a linha que especifica o editor, usar o vim
   if [ ! "$editor" ] ; then
-    sudo vim $caminho_config
+    sudo vim $CONFIG_KULL
 
   else
-    sudo $editor $caminho_config
+    sudo $editor $CONFIG_KULL
   fi
 
 }
@@ -131,14 +116,11 @@ function firewall_up() {
   # Carregar as regras de base
   carregar_regras "$1"
 
-  # Usa a função caminho_config
-  caminho_config=`caminho_config`
-
   # Quantidade de linhas do arquivo config
-  num_linhas=`wc -l $caminho_config | awk {'print $1'}`
+  num_linhas=`wc -l $CONFIG_KULL | awk {'print $1'}`
 
   # Numero da linha da primeira divisão (ex: [Kernel])
-  linha_inicio=`cat $caminho_config | cat --number | grep "\[" | \
+  linha_inicio=`cat $CONFIG_KULL | cat --number | grep "\[" | \
     head -1 | awk {'print $1'}`
 
   n=$[linha_inicio+1]
@@ -150,7 +132,7 @@ function firewall_up() {
     while [ $n -le $num_linhas ] ; do
 
       # Conteudo da linha $n
-      linha=`cat $caminho_config | head -$n | tail -1`
+      linha=`cat $CONFIG_KULL | head -$n | tail -1`
 
       # Se a linha não for newline (\n) / vazia
       if [ "$linha" ] ; then
@@ -161,7 +143,7 @@ function firewall_up() {
 
         # Chama a função de acordo com a divisão, passa como
         # argumento $linha
-        nome_divisao=`cat $caminho_config | grep "\[" | head -$j | \
+        nome_divisao=`cat $CONFIG_KULL | grep "\[" | head -$j | \
           tail -1 | sed -e 's/\[//g' | sed -e 's/\]//g'`
         conteudo=`echo "$linha" | sed -e 's/_/ /g'`
 
@@ -275,8 +257,7 @@ function Protect() {
   }
 
   # Pegar o nome da interface wlan
-  caminho_config=`caminho_config`
-  interface=`cat $caminho_config | grep "interface_wlan" | \
+  interface=`cat $CONFIG_KULL | grep "interface_wlan" | \
     awk {'print $2'}`
 
   if [ "${1,,}" == "syn-flood:" ] ; then
@@ -351,15 +332,13 @@ function Port() {
   if [ "${1,,}" == "portknock:" ] ; then
 
     # Para pegar as portas do portknock (linha acima do portknock:)
-    caminho_config=`caminho_config`
-
     # Numero da linha do portknock:
-    num_linha=`cat $caminho_config | cat --number | grep "$*" | \
+    num_linha=`cat $CONFIG_KULL | cat --number | grep "$*" | \
       awk {'print $1'}`
 
     # Portas do portknock
     linha_portas=$[num_linha-1]
-    portas_portknock=`cat $caminho_config | head -$linha_portas | \
+    portas_portknock=`cat $CONFIG_KULL | head -$linha_portas | \
       tail -1 | sed -e 's/ //g' | sed -e 's/ports_portknock://g' | \
       sed -e 's/,/ /g'`
 
@@ -537,6 +516,10 @@ echo "$*" | grep -q "quiet"
 if [ $? -eq 0 ] ; then
   quiet="verdadeiro"
 fi
+
+# Caminho até o arquivo de configuração
+# Cria se não existir
+: ${CONFIG_KULL:="/etc/kull/config"}
 
 if [ "${1,,}" == "start" ] ; then
   if [ "${2,,}" == "input" ] ; then
