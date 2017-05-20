@@ -81,11 +81,28 @@ function firewall_config() {
 # Regras que devem ter em todas as configurações
 function carregar_regras() {
 
-  iptables -P INPUT DROP ; verificar_erro "$?" "somente erros"
-  iptables -P FORWARD DROP ; verificar_erro "$?" "somente erros"
+  # Verificando arquivo de config por policy_$chain
+  function policy_chain() {
+    conteudo=`cat $CONFIG_KULL | grep "$1"`
+    if [ $? -eq 0 ] ; then
+      policy=`echo "$conteudo" | awk {'print $2'}`
+      if [ "$policy" == "deny" ] ; then policy="reject" ; fi
+      echo "${policy^^}"
+    else
+      # Padrão é DROP
+      echo "DROP"
+    fi
+  }
+
+  POLICY_IN=`policy_chain "policy_input"`
+  POLICY_FW=`policy_chain "policy_forward"`
+  POLICY_OUT=`policy_chain "policy_output"`
+
+  iptables -P INPUT $POLICY_IN ; verificar_erro "$?" "somente erros"
+  iptables -P FORWARD $POLICY_FW ; verificar_erro "$?" "somente erros"
   if [ "${1,,}" != "input" ] ; then
 
-    iptables -P OUTPUT DROP ; verificar_erro "$?" "somente erros"
+    iptables -P OUTPUT $POLICY_OUT ; verificar_erro "$?" "somente erros"
 
     # Liberar conexões estabelecidas e relacionadas
     iptables -A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT

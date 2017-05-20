@@ -1,5 +1,9 @@
 
 interface_wlan: wlp8s0
+editor_config: vim
+policy_input: drop
+policy_forward: drop
+policy_output: drop
 
 [Options]
 
@@ -21,7 +25,7 @@ conf/all/log_martians: yes
 
 [Port]
 
-ports_portknock: 101, 202, 303
+ports_portknock: 111, 222, 333
 portknock: 21, 22
 allow_input_tcp: 2020, 4444
 allow_input_udp: 5555
