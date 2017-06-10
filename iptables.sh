@@ -339,7 +339,17 @@ function Protect() {
     print_status "$?" "fragments"
    fi
   fi
-  
+
+  if [ "${1,,}" == "block-mac:" ] ; then
+    iptables -A INPUT -m mac --mac-source $2 -j DROP
+    print_status "$?" "mac address"
+  fi
+
+  if [ "${1,,}" == "block-ip:" ] ; then
+    iptables -A INPUT -s $2 -j DROP
+    print_status "$?" "ip address"
+  fi
+ 
 }
 
 # Divisão [Port] do arquivo de config

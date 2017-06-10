@@ -25,6 +25,8 @@ bash iptables.sh
     * port-scan: <yes/no>  
     * death-ping: <yes/no>  
     * block-fragments: <yes/no>  
+    * block-mac: <mac address>  
+    * block-ip: <ip address>  
 
 * Não se esqueça de dar uma olhada no exemplo ;D
 
