@@ -40,6 +40,6 @@ port-scan: yes
 death-ping: no
 block-fragments: no
 block-mac: 50:3D:A1:XX:XX:XX
-block-ip: 192.168.0.29
+block-ip: 192.168.0.29, 192.168.0.24
 
 

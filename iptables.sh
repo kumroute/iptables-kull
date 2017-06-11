@@ -341,13 +341,31 @@ function Protect() {
   fi
 
   if [ "${1,,}" == "block-mac:" ] ; then
-    iptables -A INPUT -m mac --mac-source $2 -j DROP
-    print_status "$?" "mac address"
+    shift ; for (( e=1 ; e<=$# ; ++e )) ; do
+      eval macaddr=\${$e}
+      mac=`echo "$macaddr" | sed -e 's/,//g'`
+      iptables -A INPUT -m mac --mac-source $mac -j DROP
+      error_code=$?
+      if [ $e -eq $# ] ; then
+        print_status "$error_code" "mac address"
+      else
+        verificar_erro "$error_code" "somente erros"
+      fi
+    done
   fi
 
   if [ "${1,,}" == "block-ip:" ] ; then
-    iptables -A INPUT -s $2 -j DROP
-    print_status "$?" "ip address"
+    shift ; for (( e=1 ; e<=$# ; ++e )) ; do
+      eval ipaddr=\${$e}
+      ip=`echo "$ipaddr" | sed -e 's/,//g'`
+      iptables -A INPUT -s $ip -j DROP
+      error_code=$?
+      if [ $e -eq $# ] ; then
+        print_status "$error_code" "ip address"
+      else
+        verificar_erro "$error_code" "somente erros"
+      fi
+    done
   fi
  
 }
