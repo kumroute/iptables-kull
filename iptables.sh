@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 ###################################
 # IPtables por Kum Traceroute     #
-# Contato: +55 (14) 98820-8320    #
+# Contato: +33 (06) 41-39-77-79   #
 ###################################
 
 cor_amarela="\e[33;1m"
