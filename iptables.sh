@@ -277,12 +277,14 @@ function Protect() {
   interface=`cat $CONFIG_KULL | grep "interface_wlan" | \
     awk {'print $2'}`
 
-  if [ "${1,,}" == "syn-flood:" ] ; then
+  # syn-flood: por exemplo
+  if [ "${1:4}" == "flood:" ] ; then
     if [ "${2,,}" == "yes" ] ; then
-      iptables -A INPUT -p tcp --syn -m limit --limit 2/s -j LOG --log-prefix "FIREWALL: syn-flood attack"
+      flag="${1:0:3}"
+      iptables -A INPUT -p tcp --${flag} -m limit --limit 2/s -j LOG --log-prefix "FIREWALL: ${flag}-flood attack"
       verificar_erro "$?" "somente em erros"
-      iptables -A INPUT -p tcp --syn -m limit --limit 2/s -j ACCEPT
-      print_status "$?" "syn-flood"
+      iptables -A INPUT -p tcp --${flag} -m limit --limit 2/s -j ACCEPT
+      print_status "$?" "${flag}-flood"
     fi
   fi
 
