@@ -281,9 +281,9 @@ function Protect() {
   if [ "${1:4}" == "flood:" ] ; then
     if [ "${2,,}" == "yes" ] ; then
       flag="${1:0:3}"
-      iptables -A INPUT -p tcp --${flag} -m limit --limit 2/s -j LOG --log-prefix "FIREWALL: ${flag}-flood attack"
+      iptables -A INPUT -p tcp --tcp-flags ALL ${flag} -m limit --limit 2/s -j LOG --log-prefix "FIREWALL: ${flag}-flood attack"
       verificar_erro "$?" "somente em erros"
-      iptables -A INPUT -p tcp --${flag} -m limit --limit 2/s -j ACCEPT
+      iptables -A INPUT -p tcp --tcp-flags ALL ${flag} -m limit --limit 2/s -j ACCEPT
       print_status "$?" "${flag}-flood"
     fi
   fi
