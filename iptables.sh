@@ -108,6 +108,10 @@ function carregar_regras() {
     iptables -A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
     verificar_erro "$?" "somente erros"
 
+    # Verificar se os pacotes de uma nova conexão são SYN
+    iptables -A INPUT -p tcp ! --syn -m state --state NEW -j DROP
+    verificar_erro "$?" "somente erros"
+
     # Loop back, locahost
     iptables -A OUTPUT -o lo -j ACCEPT
     verificar_erro "$?" "somente erros"
@@ -277,14 +281,12 @@ function Protect() {
   interface=`cat $CONFIG_KULL | grep "interface_wlan" | \
     awk {'print $2'}`
 
-  # syn-flood: por exemplo
-  if [ "${1:4}" == "flood:" ] ; then
+  if [ "${1,,}" == "syn-flood:" ] ; then
     if [ "${2,,}" == "yes" ] ; then
-      flag="${1:0:3}"
-      iptables -A INPUT -p tcp --tcp-flags ALL ${flag} -m limit --limit 2/s -j LOG --log-prefix "FIREWALL: ${flag}-flood attack"
+      iptables -A INPUT -p tcp --syn -m limit --limit 2/s -j LOG --log-prefix "FIREWALL: syn-flood attack"
       verificar_erro "$?" "somente em erros"
-      iptables -A INPUT -p tcp --tcp-flags ALL ${flag} -m limit --limit 2/s -j ACCEPT
-      print_status "$?" "${flag}-flood"
+      iptables -A INPUT -p tcp --syn -m limit --limit 2/s -j ACCEPT
+      print_status "$?" "syn-flood"
     fi
   fi
 
