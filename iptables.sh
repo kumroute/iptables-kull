@@ -11,7 +11,7 @@ cor_normal="\e[0m"
 
 function firewall_version() {
   if [ ! "$quiet" ] ; then
-    echo "[*] IPTables Kull 1.0.5"
+    echo "[*] IPTables Kull 1.0.6"
   fi
 }
 
