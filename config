@@ -31,15 +31,18 @@ allow_input_tcp: 2020, 4444
 allow_input_udp: 5555
 allow_output_tcp: 80, 443
 allow_output_udp: 53
+redirect-tcp: 80, 127.0.0.1:443
 
 [Protect]
 
 syn-flood: yes
+udp-flood: yes
+syn-flood-forward: yes
+udp-flood-forward: yes
 ip-spoofing: yes
 port-scan: yes
 death-ping: no
 block-fragments: no
 block-mac: 50:3D:A1:XX:XX:XX
 block-ip: 192.168.0.29, 192.168.0.24
-
 

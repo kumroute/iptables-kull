@@ -65,15 +65,15 @@ function firewall_status() {
 function firewall_config() {
 
   # Utiliza o editor configurado na config para editar
-  editor=`cat $CONFIG_KULL | grep "editor_config" | \
+  editor=`cat "$CONFIG_KULL" | grep "editor_config" | \
     awk {'print $2'}`
 
   # Se não existir a linha que especifica o editor, usar o vim
   if [ ! "$editor" ] ; then
-    sudo vim $CONFIG_KULL
+    sudo vim "$CONFIG_KULL"
 
   else
-    sudo $editor $CONFIG_KULL
+    sudo $editor "$CONFIG_KULL"
   fi
 
 }
@@ -83,7 +83,7 @@ function carregar_regras() {
 
   # Verificando arquivo de config por policy_$chain
   function policy_chain() {
-    conteudo=`cat $CONFIG_KULL | grep "$1"`
+    conteudo=`cat "$CONFIG_KULL" | grep "$1"`
     if [ $? -eq 0 ] ; then
       policy=`echo "$conteudo" | awk {'print $2'}`
       if [ "$policy" == "deny" ] ; then policy="reject" ; fi
@@ -138,10 +138,10 @@ function firewall_up() {
   carregar_regras "$1"
 
   # Quantidade de linhas do arquivo config
-  num_linhas=`wc -l $CONFIG_KULL | awk {'print $1'}`
+  num_linhas=`cat "$CONFIG_KULL" | wc -l`
 
   # Numero da linha da primeira divisão (ex: [Kernel])
-  linha_inicio=`cat $CONFIG_KULL | cat --number | grep "\[" | \
+  linha_inicio=`cat --number "$CONFIG_KULL" | grep "\[" | \
     head -1 | awk {'print $1'}`
 
   n=$[linha_inicio+1]
@@ -153,7 +153,7 @@ function firewall_up() {
     while [ $n -le $num_linhas ] ; do
 
       # Conteudo da linha $n
-      linha=`cat $CONFIG_KULL | head -$n | tail -1`
+      linha=`cat "$CONFIG_KULL" | head -$n | tail -1`
 
       # Se a linha não for newline (\n) / vazia
       if [ "$linha" ] ; then
@@ -164,7 +164,7 @@ function firewall_up() {
 
         # Chama a função de acordo com a divisão, passa como
         # argumento $linha
-        nome_divisao=`cat $CONFIG_KULL | grep "\[" | head -$j | \
+        nome_divisao=`cat "$CONFIG_KULL" | grep "\[" | head -$j | \
           tail -1 | sed -e 's/\[//g' | sed -e 's/\]//g'`
         conteudo=`echo "$linha" | sed -e 's/_/ /g'`
 
@@ -277,16 +277,42 @@ function Protect() {
     verificar_erro "$1"
   }
 
-  # Pegar o nome da interface wlan
-  interface=`cat $CONFIG_KULL | grep "interface_wlan" | \
-    awk {'print $2'}`
+  # Proteger uma chain de ataques do tipo SYN Flood
+  function protect_chain() {
 
-  if [ "${1,,}" == "syn-flood:" ] ; then
+    if [ "${2,,}" == "syn" ] ; then
+      iptables -A ${1^^} -p tcp --syn -m limit --limit 2/s -j LOG --log-prefix "FIREWALL: syn-flood attack"
+      verificar_erro "$?" "somente erros"
+      iptables -A ${1^^} -p tcp --syn -m limit --limit 2/s -j ACCEPT
+      print_status "$?" "syn-flood (${1,,})"
+    fi
+
+    if [ "${2,,}" == "udp" ] ; then
+      iptables -A ${1^^} -p udp -m limit --limit 2/s -j LOG --log-prefix "FIREWALL: udp-flood attack"
+      verificar_erro "$?" "somente erros"
+      iptables -A ${1^^} -p udp -m limit --limit 2/s -j ACCEPT
+      print_status "$?" "udp-flood (${1,,})"
+    fi
+
+  }
+
+  # SYN e UDP Flood
+  if [ "`echo \"${1,,}\" | grep "flood"`" ] ; then
     if [ "${2,,}" == "yes" ] ; then
-      iptables -A INPUT -p tcp --syn -m limit --limit 2/s -j LOG --log-prefix "FIREWALL: syn-flood attack"
-      verificar_erro "$?" "somente em erros"
-      iptables -A INPUT -p tcp --syn -m limit --limit 2/s -j ACCEPT
-      print_status "$?" "syn-flood"
+
+      if [ "${1:0:3}" == "udp" ] ; then
+        tipo="udp"
+      else
+        tipo="syn"
+      fi
+      if [ "${1:10}" == "forward:" ] ; then
+        chain="forward"
+      else
+        chain="input"
+      fi
+
+      protect_chain "$chain" "$tipo"
+
     fi
   fi
 
@@ -382,12 +408,12 @@ function Port() {
 
     # Para pegar as portas do portknock (linha acima do portknock:)
     # Numero da linha do portknock:
-    num_linha=`cat $CONFIG_KULL | cat --number | grep "$*" | \
+    num_linha=`cat --number "$CONFIG_KULL" | grep "$*" | \
       awk {'print $1'}`
 
     # Portas do portknock
     linha_portas=$[num_linha-1]
-    portas_portknock=`cat $CONFIG_KULL | head -$linha_portas | \
+    portas_portknock=`cat "$CONFIG_KULL" | head -$linha_portas | \
       tail -1 | sed -e 's/ //g' | sed -e 's/ports_portknock://g' | \
       sed -e 's/,/ /g'`
 
@@ -489,7 +515,24 @@ function Port() {
   elif [ "${1,,}" == "ports" ] ; then
     ignorar="somente para ignorar"
 
-  # Se não for portas para proteger com o portknock
+  # Redirecionamentos
+  elif [ "${1:0:8}" == "redirect" ] ; then
+    if [ "${1:9:-1}" == "tcp" ] ; then
+      protocolo="udp"
+    else
+      protocolo="tcp"
+    fi
+
+    porta=`echo "${2}" | sed -e "s/,//g"`
+    destino="$3"
+
+    if [ ! "$quiet" ] ; then
+      printf " * Carregando redirecionamento para $destino" ; fi
+
+    iptables -t nat -A PREROUTING -i $interface -p $protocolo --dport $porta -j DNAT --to $destino
+    verificar_erro "$?"
+
+  # Se não for portas para proteger com o portknock ou redirecionamentos
   # Então, é só aceitar
   else
     
@@ -569,6 +612,10 @@ fi
 # Caminho até o arquivo de configuração
 # Cria se não existir
 : ${CONFIG_KULL:="/etc/kull/config"}
+
+# Criar uma variável com o nome da interface wlan
+interface=`cat "$CONFIG_KULL" | grep "interface_wlan" | \
+  awk {'print $2'}`
 
 if [ "${1,,}" == "start" ] ; then
   if [ "${2,,}" == "input" ] ; then
