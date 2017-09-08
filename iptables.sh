@@ -546,7 +546,7 @@ function Port() {
     iptables -A FORWARD -p $protocolo --sport $porta -m state --state ESTABLISHED -j ACCEPT
     verificar_erro "$?" "somente erros"
 
-    iptables -t nat -A POSTROUTING -d $host -p $protocolo --dport $porta -o $interface -j SNAT --to $meuip
+    iptables -t nat -A POSTROUTING -d $host -p $protocolo --dport $porta -o $interface_lan -j SNAT --to $meuip
     verificar_erro "$?" "somente erros"
 
     iptables -A FORWARD -p $protocolo --dport $porta -j ACCEPT
