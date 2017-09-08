@@ -533,7 +533,7 @@ function Port() {
     if [ ! "$quiet" ] ; then
       printf " * Carregando redirecionamento para $destino" ; fi
 
-    iptables -t nat -A PREROUTING -i $interface -p $protocolo --dport $porta -j DNAT --to $destino
+    iptables -t nat -A PREROUTING -p $protocolo -s 0/0 --dport $porta -j DNAT --to-destination $destino
     verificar_erro "$?" "somente erros"
 
     iptables -A FORWARD -p $protocolo --dport $porta -m state --state ESTABLISHED -j ACCEPT
