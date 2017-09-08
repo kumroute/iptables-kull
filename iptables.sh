@@ -523,21 +523,13 @@ function Port() {
       protocolo="tcp"
     fi
 
-    interface_lan=`cat "$CONFIG_KULL" | grep "interface_lan" | \
-      awk {'print $2'}`
-    if [ ! "$interface_lan" ] ; then
-      interface_correta="$interface"
-    else
-      interface_correta="$interface_lan"
-    fi
-
     porta=`echo "${2}" | sed -e "s/,//g"`
     destino="$3"
 
     if [ ! "$quiet" ] ; then
       printf " * Carregando redirecionamento para $destino" ; fi
 
-    iptables -t nat -A PREROUTING -i $interface_correta -p $protocolo --dport $porta -j DNAT --to $destino
+    iptables -t nat -A PREROUTING -i $interface -p $protocolo --dport $porta -j DNAT --to $destino
     verificar_erro "$?"
 
   # Se não for portas para proteger com o portknock ou redirecionamentos
@@ -580,6 +572,18 @@ function Port() {
       protocolo="-p tcp"
     fi
 
+    # Interface
+    # Por padrão, é a interface especificada no $CONFIG_KULL
+    valor=`echo "$opcao" | head -4 | tail -1`
+    if [ "$chain" == "-A OUTPUT" ] ; then
+      op="-o"
+    else op="-i" ; fi
+    if [ ! "$valor" ] ; then
+      interface_correta="$op $valor"
+    else
+      interface_correta="$op $interface"
+    fi
+
     # Portas (Ex: 40, 12, 1444 -> 40 12 1444)
     portas=`echo $* | sed -e 's/[a-z_A-Z]*//g' | sed -e 's/://g' | \
       sed -e 's/ //g' | sed -e 's/,/ /g' | sed -e 's/ /\n/g'`
@@ -599,7 +603,7 @@ function Port() {
       # Porta de acordo com o $ii
       porta=`echo "$portas" | head -$ii | tail -1`
 
-      iptables $chain $protocolo --dport ${porta} $acao
+      iptables $chain $interface_correta $protocolo --dport ${porta} $acao
       verificar_erro "$?" "somente erros"
 
     done
