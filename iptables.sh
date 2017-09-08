@@ -525,11 +525,26 @@ function Port() {
 
     porta=`echo "${2}" | sed -e "s/,//g"`
     destino="$3"
+    host=`echo "$3" | sed -e "s,:, ,g" | awk {'print $1'}`
+    meuip=`ip address show wlp8s0 | grep "inet " | \
+      sed -e "s,/, ,g" | awk {'print $2'}`
 
     if [ ! "$quiet" ] ; then
       printf " * Carregando redirecionamento para $destino" ; fi
 
     iptables -t nat -A PREROUTING -i $interface -p $protocolo --dport $porta -j DNAT --to $destino
+    verificar_erro "$?" "somente erros"
+
+    iptables -A FORWARD -p $protocolo --dport $porta -m state --state ESTABLISHED -j ACCEPT
+    verificar_erro "$?" "somente erros"
+ 
+    iptables -A FORWARD -p $protocolo --sport $porta -m state --state ESTABLISHED -j ACCEPT
+    verificar_erro "$?" "somente erros"
+
+    iptables -t nat -A POSTROUTING -d $host -p $protocolo --dport $porta -o $interface -j SNAT --to $meuip
+    verificar_erro "$?" "somente erros"
+
+    iptables -A FORWARD -p $protocolo --dport $porta -j ACCEPT
     verificar_erro "$?"
 
   # Se não for portas para proteger com o portknock ou redirecionamentos
