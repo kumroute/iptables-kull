@@ -565,6 +565,7 @@ function Port() {
     else
       verificar_erro "4040" "1"
     fi
+    shift
 
     # Chain (input, output ou forward)
     valor=`echo "$opcao" | head -2 | tail -1`
@@ -577,12 +578,17 @@ function Port() {
     else
       verificar_erro "4041" "1"
     fi
+    shift
 
     # Protocolo (tcp ou udp)
     # Por padrão, é TCP
     valor=`echo "$opcao" | head -3 | tail -1`
     if [ "${valor:0:3}" == "udp" ] ; then
       protocolo="-p udp"
+      shift
+    elif [ "${valor:0:3}" == "tcp" ] ; then
+      protocolo="-p tcp"
+      shift
     else
       protocolo="-p tcp"
     fi
@@ -595,20 +601,19 @@ function Port() {
     else op="-i" ; fi
     if [ "$valor" ] ; then
       interface_correta="$op ${valor:0:-1}"
+      shift
     else
       interface_correta="$op $interface"
     fi
 
     # Portas (Ex: 40, 12, 1444 -> 40 12 1444)
-    portas=`echo $* | sed -e 's/[a-z_A-Z]*//g' | sed -e 's/://g' | \
+    portas=`echo $* | sed -e 's/://g' | \
       sed -e 's/ //g' | sed -e 's/,/ /g' | sed -e 's/ /\n/g'`
 
     # Quantidade de portas
     qnt_portas=`echo "$portas" | wc -l`
 
     if [ ! "$quiet" ] ; then
-      shift ; shift ; shift
-      if [ "$valor" ] ; then shift ; fi
       portas_printf=`echo "$*" | sed -e 's/ //g' | sed -e 's/,/ /g' | \
         sed -e 's/ /, /g'`
       printf "$simbolo $frase_printf $frase_printf2 para as portas: $portas_printf"
