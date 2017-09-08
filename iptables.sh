@@ -518,9 +518,9 @@ function Port() {
   # Redirecionamentos
   elif [ "${1:0:8}" == "redirect" ] ; then
     if [ "${1:9:-1}" == "tcp" ] ; then
-      protocolo="udp"
-    else
       protocolo="tcp"
+    else
+      protocolo="udp"
     fi
 
     porta=`echo "${2}" | sed -e "s/,//g"`
@@ -603,7 +603,7 @@ function Port() {
 
       # Porta de acordo com o $ii
       porta=`echo "$portas" | head -$ii | tail -1`
- 
+  
       iptables $chain $interface_correta $protocolo --dport ${porta} $acao
       verificar_erro "$?" "somente erros"
 
