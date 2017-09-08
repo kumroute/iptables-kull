@@ -566,7 +566,7 @@ function Port() {
     # Protocolo (tcp ou udp)
     # Por padrão, é TCP
     valor=`echo "$opcao" | head -3 | tail -1`
-    if [ "${valor,,}" == "udp:" ] ; then
+    if [ "${valor:0:3}" == "udp" ] ; then
       protocolo="-p udp"
     else
       protocolo="-p tcp"
@@ -574,12 +574,12 @@ function Port() {
 
     # Interface
     # Por padrão, é a interface especificada no $CONFIG_KULL
-    valor=`echo "$opcao" | head -4 | tail -1`
+    valor=`echo "$opcao" | head -4 | tail -1 | grep ":"`
     if [ "$chain" == "-A OUTPUT" ] ; then
       op="-o"
     else op="-i" ; fi
-    if [ ! "$valor" ] ; then
-      interface_correta="$op $valor"
+    if [ "$valor" ] ; then
+      interface_correta="$op ${valor:0:-1}"
     else
       interface_correta="$op $interface"
     fi
@@ -593,6 +593,7 @@ function Port() {
 
     if [ ! "$quiet" ] ; then
       shift ; shift ; shift
+      if [ "$valor" ] ; then shift ; fi
       portas_printf=`echo "$*" | sed -e 's/ //g' | sed -e 's/,/ /g' | \
         sed -e 's/ /, /g'`
       printf "$simbolo $frase_printf $frase_printf2 para as portas: $portas_printf"
@@ -602,7 +603,7 @@ function Port() {
 
       # Porta de acordo com o $ii
       porta=`echo "$portas" | head -$ii | tail -1`
-
+ 
       iptables $chain $interface_correta $protocolo --dport ${porta} $acao
       verificar_erro "$?" "somente erros"
 
