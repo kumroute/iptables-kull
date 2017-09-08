@@ -526,7 +526,7 @@ function Port() {
     porta=`echo "${2}" | sed -e "s/,//g"`
     destino="$3"
     host=`echo "$3" | sed -e "s,:, ,g" | awk {'print $1'}`
-    meuip=`ip address show wlp8s0 | grep "inet " | \
+    meuip=`ip address show "$interface" | grep "inet " | \
       sed -e "s,/, ,g" | awk {'print $2'}`
 
     if [ ! "$quiet" ] ; then
