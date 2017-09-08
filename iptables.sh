@@ -531,7 +531,7 @@ function Port() {
       awk {'print 2'}`
     if [ ! "$interface_lan" ] ; then interface_lan="$interface" ; fi
 
-    meuip=`ip address show "$interface" | grep "inet " | \
+    meuip=`ip address show "$interface_lan" | grep "inet " | \
       sed -e "s,/, ,g" | awk {'print $2'}`
 
     if [ ! "$quiet" ] ; then
