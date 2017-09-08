@@ -525,14 +525,10 @@ function Port() {
 
     porta=`echo "${2}" | sed -e "s/,//g"`
     destino="$3"
-    host=`echo "$3" | sed -e "s,:, ,g" | awk {'print $1'}`
-
-    interface_lan=`cat "$CONFIG_KULL" | grep "interface_lan" | \
-      awk {'print 2'}`
-    if [ ! "$interface_lan" ] ; then interface_lan="$interface" ; fi
+    host=`echo "$3" | sed -e "s,:, ,g" | awk {'print $1'}` 
 
     meuip=`ip address show "$interface_lan" | grep "inet " | \
-      sed -e "s,/, ,g" | awk {'print $2'}`
+      sed -e "s,/, ,g" | awk {'print $2'}` 
 
     if [ ! "$quiet" ] ; then
       printf " * Carregando redirecionamento para $destino" ; fi
@@ -654,6 +650,11 @@ fi
 # Criar uma variável com o nome da interface wlan
 interface=`cat "$CONFIG_KULL" | grep "interface_wlan" | \
   awk {'print $2'}`
+
+# Interface lan
+interface_lan=`cat "$CONFIG_KULL" | grep "interface_lan" | \
+  awk {'print $2'}`
+if [ ! "$interface_lan" ] ; then interface_lan="$interface" ; fi
 
 if [ "${1,,}" == "start" ] ; then
   if [ "${2,,}" == "input" ] ; then
