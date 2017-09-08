@@ -526,6 +526,11 @@ function Port() {
     porta=`echo "${2}" | sed -e "s/,//g"`
     destino="$3"
     host=`echo "$3" | sed -e "s,:, ,g" | awk {'print $1'}`
+
+    interface_lan=`cat "$CONFIG_KULL" | grep "interface_lan" | \
+      awk {'print 2'}`
+    if [ ! "$interface_lan" ] ; then interface_lan="$interface" ; fi
+
     meuip=`ip address show "$interface" | grep "inet " | \
       sed -e "s,/, ,g" | awk {'print $2'}`
 
