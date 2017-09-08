@@ -523,13 +523,21 @@ function Port() {
       protocolo="tcp"
     fi
 
+    interface_lan=`cat "$CONFIG_KULL" | grep "interface_lan" | \
+      awk {'print $2'}`
+    if [ ! "$interface_lan" ] ; then
+      interface_correta="$interface"
+    else
+      interface_correta="$interface_lan"
+    fi
+
     porta=`echo "${2}" | sed -e "s/,//g"`
     destino="$3"
 
     if [ ! "$quiet" ] ; then
       printf " * Carregando redirecionamento para $destino" ; fi
 
-    iptables -t nat -A PREROUTING -i $interface -p $protocolo --dport $porta -j DNAT --to $destino
+    iptables -t nat -A PREROUTING -i $interface_correta -p $protocolo --dport $porta -j DNAT --to $destino
     verificar_erro "$?"
 
   # Se não for portas para proteger com o portknock ou redirecionamentos
