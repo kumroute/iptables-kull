@@ -517,10 +517,10 @@ function Port() {
 
   # Redirecionamentos
   elif [ "${1:0:8}" == "redirect" ] ; then
-    if [ "${1:9:-1}" == "tcp" ] ; then
-      protocolo="tcp"
-    else
+    if [ "${1:9:-1}" != "tcp" ] ; then
       protocolo="udp"
+    else
+      protocolo="tcp"
     fi
 
     porta=`echo "${2}" | sed -e "s/,//g"`
