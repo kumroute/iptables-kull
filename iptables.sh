@@ -194,12 +194,14 @@ function firewall_down() {
 
   if [ ! "$quiet" ] ; then
     printf " - Apagando as regras" ; fi
+  iptables -t nat -F ; verificar_erro "$?" "somente erros"
   iptables -F ; verificar_erro "$?" "somente erros"
   iptables -X ; verificar_erro "$?" "somente erros"
   iptables -Z ; verificar_erro "$?"
 
   if [ ! "$quiet" ] ; then
     printf " - Trocando políticas padrões" ; fi
+  iptables -t nat -P PREROUTING ACCEPT ; verificar_erro "$?" "somente erros"
   iptables -P INPUT ACCEPT ; verificar_erro "$?" "somente erros"
   iptables -P FORWARD ACCEPT ; verificar_erro "$?" "somente erros"
   iptables -P OUTPUT ACCEPT ; verificar_erro "$?"
@@ -533,20 +535,14 @@ function Port() {
     if [ ! "$quiet" ] ; then
       printf " * Carregando redirecionamento para $destino" ; fi
 
-    iptables -t nat -A PREROUTING -p $protocolo -s 0/0 --dport $porta -j DNAT --to-destination $destino
+    iptables -t nat -A PREROUTING -i $interface_lan -p $protocolo --dport $porta -j DNAT --to $destino
     verificar_erro "$?" "somente erros"
 
-    iptables -A FORWARD -p $protocolo --dport $porta -m state --state ESTABLISHED -j ACCEPT
-    verificar_erro "$?" "somente erros"
- 
-    iptables -A FORWARD -p $protocolo --sport $porta -m state --state ESTABLISHED -j ACCEPT
+    iptables -A FORWARD -i $interface_lan -o $interface -j ACCEPT
     verificar_erro "$?" "somente erros"
 
-    iptables -t nat -A POSTROUTING -d $host -p $protocolo --dport $porta -o $interface_lan -j SNAT --to $meuip
+    iptables -A FORWARD -i $interface -o $interface_lan -j ACCEPT
     verificar_erro "$?" "somente erros"
-
-    iptables -A FORWARD -p $protocolo --dport $porta -j ACCEPT
-    verificar_erro "$?"
 
   # Se não for portas para proteger com o portknock ou redirecionamentos
   # Então, é só aceitar
